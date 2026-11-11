@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("MIGRATION_DATABASE_URL")
+}
+
+enum Role {
+  HOLDER
+  ADMIN
+}
+
+enum OnboardingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String              @id @default(cuid())
+  email        String              @unique
+  name         String
+  passwordHash String
+  role         Role                @default(HOLDER)
+  disabled     Boolean             @default(false)
+  createdAt    DateTime            @default(now())
+  requests     OnboardingRequest[]
+  auditEvents  AuditLog[]           @relation("Actor")
+}
+
+model OnboardingRequest {
+  id          String           @id @default(cuid())
+  userId      String
+  status      OnboardingStatus @default(PENDING)
+  note        String?
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([status, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  targetId  String?
+  details   Json
+  createdAt DateTime @default(now())
+  actor     User?    @relation("Actor", fields: [actorId], references: [id], onDelete: SetNull)
+  @@index([createdAt])
+  @@index([actorId, createdAt])
+}

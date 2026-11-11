@@ -1,0 +1,14 @@
+{
+  "name": "balancevault-starter",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"npm --prefix api run dev\" \"npm --prefix web run dev\"",
+    "db:generate": "npm --prefix api run db:generate",
+    "db:migrate": "npm --prefix api run db:migrate",
+    "db:deploy": "npm --prefix api run db:deploy",
+    "bootstrap:admin": "npm --prefix api run bootstrap:admin",
+    "admin:rotate": "npm --prefix api run admin:rotate",
+    "build": "npm --prefix web run build"
+  },
+  "devDependencies": {"concurrently": "^9.1.2"}
+}
